@@ -4,7 +4,7 @@
 A log ingestion service with a query interface for querying the logs.
 
 
-## Requirements and Getting Started
+## Requirements and Getting Started {#requirements-and-getting-started}
 
 The following packages are required for running the project.
 Also everything is tested on `Ubuntu 22.04.2 LTS`
@@ -96,7 +96,7 @@ To stop the application use
 The postgres database and redis queue state will be preserved since `docker-volumes` are used, so unless the volumes are deleted the data is safe.
 
 
-## Usage 
+## Usage {#usage}
 
 The following request will ingest a log in the database :
 
@@ -141,11 +141,11 @@ The logs are fetched in a `paginated` manner. On one page `50` entries are shown
 
 ![Query Dashboard](./ui.png)
 
-## Architecture
+## Architecture {#architecture}
 
 ![Architecture](./arch.png)
 
-- **Log Ingestion:**
+- **Log Ingestion:** 
 
     All the requests come to a nginx loadbalancer which acts as a reverse proxy and redirects the requests to django backend started with `gunicorn`, 
     to avoid latency in log ingestion, only payload verification is performed in the django app and the log ingestion part is performed asynchronously via
@@ -167,7 +167,7 @@ The logs are fetched in a `paginated` manner. On one page `50` entries are shown
     When the backend is queried not all records are returned, the api is `paginated` to reduce the query time, 50 records are fetched at a time.
 
 
-## Stress tests
+## Stress tests {#stress-tests}
 
 Stress tested the application with `locust`, to run the `stress_test` script:
 

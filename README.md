@@ -1,5 +1,16 @@
 # Log Ingestor and Query Interface
 
+
+# Table of Contents
+
+1. [Challenge](./path/to/README.md)
+2. [Requirements and Getting Started](./path/to/doc/README.md#requirements-and-getting-started)
+3. [Usage](./path/to/doc/README.md#usage)
+4. [Architecture](./path/to/doc/README.md#architecture)
+5. [Stress tests](./path/to/doc/README.md#stress-tests)
+
+
+
 ## Introduction
 
 This project aims to create a robust log ingestor system and a query interface capable of handling vast volumes of log data efficiently. It allows querying through a simple interface using full-text search or specific field filters.
@@ -69,24 +80,3 @@ Your submission will be evaluated based on:
 - Usability and user-friendliness
 - Implementation of advanced features
 - Cleanliness and structure of the codebase
-
-## Submission Guidelines
-We’re accepting submissions through GitHub only! Please create a private repo and share access with `ayush6624`
-
-Make sure to include the following things in your submission:
-
-- The entire source code.
-- A README showcasing how to run the project, the system design, a list of features implemented, and any identified issues present in the system.
-- (Optional) Video or presentation showcasing the solution.
-
-> Please ensure that you’ve also applied for the role on our Job form as well!
->
-## Tips
-
-- Consider hybrid database solutions for balanced data handling and search capabilities.
-- Database indexing and sharding might enhance scalability and speed.
-- Cloud-based solutions or distributed systems can ensure robust scalability.
-
----
-
-This structure aims to cover the key aspects of the assignment, providing a clear guide for both the developers and evaluators.
