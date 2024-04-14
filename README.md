@@ -4,7 +4,7 @@
 # Table of Contents
 
 1. [Challenge](./README.md)
-2. [Requirements and Getting Started](./doc/README.md#requirements-and-getting-started)
+2. [Requirements and Getting Started](./doc#requirements-and-getting-started-requirements-and-getting-started)
 3. [Usage](./doc/README.md#usage)
 4. [Architecture](./doc/README.md#architecture)
 5. [Stress tests](./doc/README.md#stress-tests)
