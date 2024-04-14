@@ -1,200 +1,92 @@
-# Log ingestor and query interface
+# Log Ingestor and Query Interface
 
+## Introduction
 
-A log ingestion service with a query interface for querying the logs.
+This project aims to create a robust log ingestor system and a query interface capable of handling vast volumes of log data efficiently. It allows querying through a simple interface using full-text search or specific field filters.
 
+### Objective
 
-## Requirements and Getting Started
+Develop a log ingestor system and query interface utilizing any programming language to meet the specified requirements.
 
-The following packages are required for running the project.
-Also everything is tested on `Ubuntu 22.04.2 LTS`
+### Sample Log Data Format
 
-```bash
-[devbox]$ docker --version
-Docker version 24.0.2, build cb74dfcdocker
+The logs to be ingested will follow this JSON format:
 
-[devbox]$ docker compose version  
-Docker Compose version v2.18.1
-
-[devbox]$ python --version
-Python 3.10.12
-```
-
-To start the application and all the services run
-
-```bash
-[devbox]$ ./start.sh
-#######################################
-# Starting services in the background #
-#######################################
-[+] Building 0.0s (0/0)
-[+] Running 7/7
- ✔ Container broker        Running                                                                                                                                                                                              0.0s
- ✔ Container db            Healthy                                                                                                                                                                                             13.3s
- ✔ Container pgbouncer     Running                                                                                                                                                                                              0.0s
- ✔ Container log_ingestor  Started                                                                                                                                                                                             14.0s
- ✔ Container worker        Started                                                                                                                                                                                             13.8s
- ✔ Container ingress       Started                                                                                                                                                                                             12.6s
- ✔ Container ui            Started                                                                                                                                                                                             12.9s
-################################################################
-# Waiting for all the services to come up, sleeping 15 seconds #
-################################################################
-##################################
-# Performing database migrations #
-##################################
-Operations to perform:
-  Apply all migrations: admin, auth, contenttypes, django_rq, log_ingestor, sessions
-Running migrations:
-  No migrations to apply.
-#######################
-# Creating admin user #
-#######################
-Superuser created successfully.
-
-***********************************************************
-
-log ingestor backend should be up on http://localhost:3000
-query dashboard should be up on http://localhost:8080
-
-***********************************************************
-```
-
-The script will start all the containers and setup the database also,
-it will also create an django admin user for the admin panel
-
-Admin user creds : 
-```
-username: admin
-password: admin
-```
-
-After the execution of the startup script is done the following container should be up,
-indicating successfull startup of the app
-
-```bash
-[devbox]$ docker ps -a
-CONTAINER ID   IMAGE                          COMMAND                  CREATED          STATUS                    PORTS                                                 NAMES
-4dde5e43e230   logging_service-ui             "docker-entrypoint.s…"   26 minutes ago   Up 26 minutes             8080/tcp, 0.0.0.0:8080->5173/tcp, :::8080->5173/tcp   ui
-23bb2c45054e   nginx:1.17.6                   "nginx -g 'daemon of…"   26 minutes ago   Up 26 minutes             0.0.0.0:3000->80/tcp, :::3000->80/tcp                 ingress
-b3df0275fc63   logging_service-worker         "supervisord -n"         26 minutes ago   Up 26 minutes             8000/tcp                                              worker
-9648bf60b63c   logging_service-log_ingestor   "gunicorn log_ingest…"   26 minutes ago   Up 26 minutes             8000/tcp                                              log_ingestor
-0b21111fecde   edoburu/pgbouncer:1.18.0       "/entrypoint.sh /usr…"   26 minutes ago   Up 26 minutes             0.0.0.0:5432->5432/tcp, :::5432->5432/tcp             pgbouncer
-f69deefecbb2   postgres:15.2                  "docker-entrypoint.s…"   26 minutes ago   Up 26 minutes (healthy)   5432/tcp                                              db
-a437dab688b2   redis:6.2-alpine               "docker-entrypoint.s…"   26 minutes ago   Up 26 minutes             0.0.0.0:6379->6379/tcp, :::6379->6379/tcp             broker
-```
-
-
-The main backend application should be up on `http://localhost:3000` and the UI should be up on `http://localhost:8080`
-
-
-To stop the application use
-
-```bash
-[devbox]$ docker compose down
-```
-
-The postgres database and redis queue state will be preserved since `docker-volumes` are used, so unless the volumes are deleted the data is safe.
-
-
-## Usage 
-
-The following request will ingest a log in the database :
-
-```bash
-[devbox]$ cat log.json
+```json
 {
-  "level": "error",
-  "message": "Failed to connect to DB",
-  "resourceId": "server-1234",
-  "timestamp": "2023-09-15T08:00:00Z",
-  "traceId": "abc-xyz-123",
-  "spanId": "span-456",
-  "commit": "5e5342f",
-  "metadata": {
-    "parentResourceId": "server-0987"
-  }
+	"level": "error",
+	"message": "Failed to connect to DB",
+    "resourceId": "server-1234",
+	"timestamp": "2023-09-15T08:00:00Z",
+	"traceId": "abc-xyz-123",
+    "spanId": "span-456",
+    "commit": "5e5342f",
+    "metadata": {
+        "parentResourceId": "server-0987"
+    }
 }
-
-[devbox]$ curl -sX POST http://localhost:3000 -d @log.json --header "Content-Type: application/json"
-{
-  "message": "logs enqueued for ingestion"
-}
-
 ```
 
-Alternatively, by visiting `http://localhost:3000` django-rest-framework's UI can also be used to ingest logs.
+## Requirements
 
-![drf](./drf.png)
+### Log Ingestor:
 
-To query the ingested logs, visit `http://localhost:8080`, 
-The log filtering is provided on following fields
- - level
- - message (full text search)
- - resourceId
- - between two timestamps
- - traceId
- - spanId
- - commit
- - parentResourceId
+- **Ingestion Mechanism:** Develop a mechanism to ingest logs in the provided format.
+- **Scalability:** Ensure scalability to handle high volumes of logs efficiently.
+- **Bottleneck Mitigation:** Mitigate potential bottlenecks such as I/O operations, database write speeds, etc.
+- **HTTP Server:** Logs should be ingested via an HTTP server, default port `3000`.
 
-The logs are fetched in a `paginated` manner. On one page `50` entries are shown.
+### Query Interface:
 
-![Query Dashboard](./ui.png)
+- **User Interface:** Offer a user interface (Web UI or CLI) for full-text search across logs.
+- **Filters:** Include filters based on various log attributes (level, message, resourceId, timestamp, etc.).
+- **Efficiency:** Aim for efficient and quick search results.
 
-## Architecture
+### Advanced Features (Bonus):
 
-![Architecture](./arch.png)
+- Implement search within specific date ranges.
+- Utilize regular expressions for search.
+- Allow combining multiple filters.
+- Provide real-time log ingestion and searching capabilities.
+- Implement role-based access to the query interface.
 
-- **Log Ingestion:**
+## Sample Queries
 
-    All the requests come to a nginx loadbalancer which acts as a reverse proxy and redirects the requests to django backend started with `gunicorn`, 
-    to avoid latency in log ingestion, only payload verification is performed in the django app and the log ingestion part is performed asynchronously via
-    a redis queue, this reduces the load on database also as the number of connections to maintain are less.
+Sample queries that will be executed for validation:
 
-    Since django natively does not support connection pooling for database connection `pgbouncer` is used as the connection pooler for the `postgres` database.
+- Find all logs with the level set to "error".
+- Search for logs with the message containing the term "Failed to connect".
+- Retrieve all logs related to resourceId "server-1234".
+- Filter logs between the timestamp "2023-09-10T00:00:00Z" and "2023-09-15T23:59:59Z". (Bonus)
 
-    In a separate container multiple redis queue workers are spawned which fetch the tasks enqued by the django application, the workers ingest the logs in 
-    the postgres database. This approach reduces latency but introduces some delay until the logs are saved. By default `12 workers` are started.
+## Evaluation Criteria
 
-    On log querying UI live status of log ingestion progress is displayed.
+Your submission will be evaluated based on:
 
-- **Log querying:**
+- Volume handling
+- Speed in returning search results
+- Scalability to increasing volumes of logs/queries
+- Usability and user-friendliness
+- Implementation of advanced features
+- Cleanliness and structure of the codebase
 
-    All the fields which are being queried are indexed in the database to reduce the query time.
-    
-    For full-text-search on message field `ts_vector` data is stored in database, along with it a `gin index` is created on that column for faster lookup.
+## Submission Guidelines
+We’re accepting submissions through GitHub only! Please create a private repo and share access with `ayush6624`
 
-    When the backend is queried not all records are returned, the api is `paginated` to reduce the query time, 50 records are fetched at a time.
+Make sure to include the following things in your submission:
 
+- The entire source code.
+- A README showcasing how to run the project, the system design, a list of features implemented, and any identified issues present in the system.
+- (Optional) Video or presentation showcasing the solution.
 
-## Stress tests
+> Please ensure that you’ve also applied for the role on our Job form as well!
+>
+## Tips
 
-Stress tested the application with `locust`, to run the `stress_test` script:
+- Consider hybrid database solutions for balanced data handling and search capabilities.
+- Database indexing and sharding might enhance scalability and speed.
+- Cloud-based solutions or distributed systems can ensure robust scalability.
 
-```bash
+---
 
-[devbox]$ python3 -m venv venv
-[devbox]$ source venv/bin/activate
-[devbox]$ pip install -r app/requirements.txt
-[devbox]$ ./stress_test.sh
-```
-
-The test is run with 10000 users at a rate of 50 users spawning per second, it will run for about 40 seconds.
-
-Output of the stress test:
-
-```
-Type     Name              # reqs      # fails |    Avg     Min     Max    Med |   req/s  failures/s
---------|----------------|-------|-------------|-------|-------|-------|-------|--------|-----------
-POST     /                  14842     0(0.00%) |   1741      52   20283   1300 |  352.63        0.00
---------|----------------|-------|-------------|-------|-------|-------|-------|--------|-----------
-         Aggregated         14842     0(0.00%) |   1741      52   20283   1300 |  352.63        0.00
-
-Response time percentiles (approximated)
-Type     Name                      50%    66%    75%    80%    90%    95%    98%    99%  99.9% 99.99%   100% # reqs
---------|--------------------|--------|------|------|------|------|------|------|------|------|------|------|------
-POST     /                        1300   1800   2100   2200   2500   4800  11000  13000  19000  20000  20000  14842
---------|--------------------|--------|------|------|------|------|------|------|------|------|------|------|------
-         Aggregated               1300   1800   2100   2200   2500   4800  11000  13000  19000  20000  20000  14842
-
-```
+This structure aims to cover the key aspects of the assignment, providing a clear guide for both the developers and evaluators.
