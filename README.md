@@ -3,11 +3,11 @@
 
 # Table of Contents
 
-1. [Challenge](./path/to/README.md)
-2. [Requirements and Getting Started](./path/to/doc/README.md#requirements-and-getting-started)
-3. [Usage](./path/to/doc/README.md#usage)
-4. [Architecture](./path/to/doc/README.md#architecture)
-5. [Stress tests](./path/to/doc/README.md#stress-tests)
+1. [Challenge](./README.md)
+2. [Requirements and Getting Started](./doc/README.md#requirements-and-getting-started)
+3. [Usage](./doc/README.md#usage)
+4. [Architecture](./doc/README.md#architecture)
+5. [Stress tests](./doc/README.md#stress-tests)
 
 
 
