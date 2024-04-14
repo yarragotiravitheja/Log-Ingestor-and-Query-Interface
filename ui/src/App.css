@@ -1,0 +1,52 @@
+.ruleGroup-combinators {
+  display: none;
+}
+
+.ruleGroup-addRule,
+.ruleGroup-addGroup,
+.rule-remove {
+  display: none;
+}
+
+.rule-value {
+  width: 40%;
+}
+
+.app-button {
+  margin: 10px;
+  outline: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.pagination-container {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.pagination-button-container {
+  display: flex;
+  width: 60%;
+  justify-content: space-between;
+  margin: 10px
+}
+
+.button-shadow {
+  padding: 8px;
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+  width: 50px;
+  height: 50px;
+  background-color: slategrey;
+  border-radius: 50%;
+  border: none;
+  color: white;
+}
+
+.button-shadow:disabled {
+  background-color: rgba(112, 128, 144, 0.508);
+  cursor: default;
+}

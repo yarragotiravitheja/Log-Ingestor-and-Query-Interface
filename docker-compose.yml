@@ -1,0 +1,101 @@
+version: "3.8"
+services:
+  ingress:
+    image: nginx:1.17.6
+    container_name: ingress
+    ports:
+      - "3000:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - log_ingestor
+
+  log_ingestor:
+    build:
+      context: ./app
+    container_name: 'log_ingestor'
+    command: gunicorn log_ingestor.wsgi:application -c ./gunicorn.conf.py
+    # command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - ./app:/app
+    environment:
+      - BROKER=broker
+      - DB_HOST=pgbouncer
+      - DJANGO_SUPERUSER_USERNAME=admin
+      - DJANGO_SUPERUSER_PASSWORD=admin
+      - DJANGO_SUPERUSER_EMAIL=admin@example.com
+    depends_on:
+      db:
+        condition: service_healthy
+
+  ui:
+    build:
+      context: ./ui
+    container_name: ui
+    command: npm run dev
+    ports:
+      - "8080:5173"
+    depends_on:
+      - log_ingestor
+    
+  worker:
+    build:
+      context: ./app
+    container_name: 'worker'
+    environment:
+      - BROKER=broker
+      - DB_HOST=pgbouncer
+      - WORKER_COUNT=12
+    volumes:
+      - ./app:/app
+    command: supervisord -n
+    depends_on:
+      db:
+        condition: service_healthy
+
+  pgbouncer:
+    image: edoburu/pgbouncer:1.18.0
+    container_name: 'pgbouncer'
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/log_ingestor
+      - POOL_MODE=transaction  
+      - MAX_DB_CONNECTIONS=120
+      - DEFAULT_POOL_SIZE=40
+      - AUTH_TYPE=md5
+      - MAX_CLIENT_CONN=50000
+    ports:
+      - "5432:5432"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    container_name: db
+    image: postgres:15.2
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=log_ingestor
+      - POSTGRES_HOST_AUTH_METHOD=md5
+      - POSTGRES_INITDB_ARGS=--auth=md5
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  broker:
+    image: redis:6.2-alpine
+    container_name: broker
+    restart: always
+    ports:
+      - '6379:6379'
+    command: redis-server
+    volumes: 
+      - brokerdata:/data
+
+volumes:
+  pgdata:
+  brokerdata:
